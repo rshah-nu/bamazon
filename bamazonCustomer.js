@@ -15,7 +15,6 @@ connection.connect(function (err, res) {
     if (err) throw err;
     console.log("Connected as id " + connection.threadId);
     printDataToPage();
-    initialUserPrompt();
 });
 // Print all current products in DB to screen, with associated row data
 function printDataToPage() {
@@ -23,7 +22,7 @@ function printDataToPage() {
         var data = [];
         if (err) throw err;
         var t = new easyTable
-        
+        // Making use of the easy-table package to display items in table format
         res.forEach(function (product) {
             t.cell('Product ID', product.item_id)
             t.cell('Description', product.product_name)
@@ -32,11 +31,16 @@ function printDataToPage() {
             t.cell('Quantity in Stock', product.stock_quantity)
             t.newRow()
         });
-       console.log(t.toString())
+        console.log(t.toString())
+        // Had some spacing issues where inquirer covered up last item, therefore adding newline.
+        console.log("\n");
     });
 };
+
+initialUserPrompt();
 // Prompts the user to take a DB action
 function initialUserPrompt() {
+
     inquirer
         .prompt([
             {
@@ -84,16 +88,20 @@ function secondPrompt() {
 
 function verifyStock(res, inquirerResponse) {
     if (res[0].stock_quantity < inquirerResponse.userRequestedQuantity) {
-        console.log("Sorry, you want to buy more than we have. Sadness");
+        console.log("********************************************************");
+        console.log("Sorry, you want to buy more than we have. :-(");
         console.log("Buy something else, we need money. We are a small business.");
-        secondPrompt();
+        console.log("********************************************************");
+        initialUserPrompt();
     }
     else {
         var newQuantity = res[0].stock_quantity - inquirerResponse.userRequestedQuantity;
         connection.query('UPDATE products SET stock_quantity=? WHERE item_id=?', [newQuantity, inquirerResponse.userRequestedID], function (err, res) {
             if (err) throw err;
             else {
+                console.log("********************************************************");
                 console.log("Thank you for your order! Have a nice day! Your credit card has been debited automatically, Michael and/or Peter");
+                console.log("********************************************************");
                 printDataToPage();
                 connection.end();
             };
