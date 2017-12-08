@@ -79,9 +79,9 @@ function checkStuff(quant, inquirerResponse) {
         secondPrompt();
     }
     else {
-        quant =- inquirerResponse.quantResponse;
-        connection.query('UPDATE stock_quantity WHERE item_id=?', [inquirerResponse.idResponse], function (err, res) {
-            if (err) throw "It's totally broken!";
+        quant = quant - inquirerResponse.quantResponse;
+        connection.query('UPDATE products SET stock_quantity=? WHERE item_id=?', [quant, inquirerResponse.idResponse], function (err, res) {
+            if (err) throw err;
             else {
                 console.log("DONE!");
             };
